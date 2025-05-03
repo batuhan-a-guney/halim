@@ -3,7 +3,7 @@ name: Deploy Node.js App to Azure App Service
 on:
   push:
     branches:
-      - main # Change this to your branch name if needed
+      - main
   workflow_dispatch:
 
 jobs:
@@ -21,16 +21,20 @@ jobs:
         with:
           node-version: '22.x'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install --prefix=../..
+      # Step 3: Navigate to the correct directory (if `package.json` is in a subdirectory)
+      - name: Change to project directory
+        run: cd apps/web
 
-      # Step 4: Deploy to Azure App Service
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Deploy to Azure App Service
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'testbatu' # Replace with your Azure App Service name
-          slot-name: 'production' # Use 'staging' if deploying to a staging slot
+          slot-name: 'production'
           package: '.'
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
