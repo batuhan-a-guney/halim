@@ -19,10 +19,23 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Install production dependencies only
+      - name: Debug repository structure
         run: |
-          # Install only production dependencies
-          npm install --omit=dev
+          echo "Root directory contents:"
+          ls -la
+          echo "Packages directory contents:"
+          ls -la packages/ || echo "No packages directory"
+          echo "Apps directory contents:"
+          ls -la apps/
+          echo "Looking for eslint-config:"
+          find . -name "eslint-config" -type d || echo "No eslint-config directory found"
+          echo "All package.json files:"
+          find . -name "package.json" | head -20
+
+      - name: Install dependencies with force
+        run: |
+          # Force install without resolving workspace packages
+          npm install --force
           
       - name: Build web app
         run: npm run build:web
