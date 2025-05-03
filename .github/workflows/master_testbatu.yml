@@ -19,25 +19,34 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Debug and create missing workspace packages
+      - name: Create missing workspace packages
         run: |
-          echo "Repository structure:"
-          ls -la
-          echo "Checking packages directory:"
-          ls -la packages/ || echo "No packages directory"
-          
-          # Create missing workspace packages if they don't exist
           echo "Creating missing workspace packages..."
+          
+          # Create eslint-config
           mkdir -p packages/eslint-config
           echo '{"name": "@repo/eslint-config", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/eslint-config/package.json
           echo 'module.exports = {};' > packages/eslint-config/index.js
           
+          # Create typescript-config
           mkdir -p packages/typescript-config  
           echo '{"name": "@repo/typescript-config", "version": "0.0.0", "private": true, "main": "base.json"}' > packages/typescript-config/package.json
           echo '{}' > packages/typescript-config/base.json
           
+          # Create sanity (both sanity and fsanity in case it's a typo)
+          mkdir -p packages/sanity
+          echo '{"name": "@repo/sanity", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/sanity/package.json
+          echo 'module.exports = {};' > packages/sanity/index.js
+          
+          mkdir -p packages/fsanity
+          echo '{"name": "@repo/fsanity", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/fsanity/package.json
+          echo 'module.exports = {};' > packages/fsanity/index.js
+          
           echo "Packages directory after creation:"
           ls -la packages/
+          
+          echo "All package.json files:"
+          find . -name "package.json" | xargs grep -l "repo" || true
 
       - name: Install dependencies
         run: npm install
