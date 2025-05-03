@@ -36,9 +36,36 @@ jobs:
             
             if [ ! -d "$pkg_dir" ]; then
               echo "Creating missing package: $package"
-              mkdir -p "$pkg_dir"
-              echo "{\"name\": \"$package\", \"version\": \"0.0.0\", \"private\": true, \"main\": \"index.js\"}" > "$pkg_dir/package.json"
-              echo "module.exports = {};" > "$pkg_dir/index.js"
+              mkdir -p "$pkg_dir/src"
+              
+              # Create package.json
+              echo "{\"name\": \"$package\", \"version\": \"0.0.0\", \"private\": true, \"main\": \"src/index.js\", \"scripts\": {\"build\": \"echo 'Placeholder build'\"}}" > "$pkg_dir/package.json"
+              
+              # Create a simple index.js
+              echo "module.exports = {};" > "$pkg_dir/src/index.js"
+              
+              # Create tsconfig.json if package name ends with 'config' or is 'api'
+              if [[ "$pkg_name" == *"config"* ]] || [[ "$pkg_name" == "api" ]]; then
+                echo '{
+                  "compilerOptions": {
+                    "target": "es2015",
+                    "module": "commonjs",
+                    "outDir": "./dist",
+                    "rootDir": "./src",
+                    "strict": false,
+                    "esModuleInterop": true,
+                    "skipLibCheck": true
+                  },
+                  "include": ["src/**/*"],
+                  "exclude": ["node_modules"]
+                }' > "$pkg_dir/tsconfig.json"
+                
+                # Create empty TypeScript file
+                echo "export {};" > "$pkg_dir/src/index.ts"
+                
+                # Update package.json to use TypeScript build
+                echo "{\"name\": \"$package\", \"version\": \"0.0.0\", \"private\": true, \"main\": \"dist/index.js\", \"scripts\": {\"build\": \"tsc || exit 0\"}}" > "$pkg_dir/package.json"
+              fi
             fi
           done
           
