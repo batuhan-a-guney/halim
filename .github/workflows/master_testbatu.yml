@@ -21,22 +21,21 @@ jobs:
         with:
           node-version: '22.x'
 
-      # Step 3: Navigate to the correct directory (if `package.json` is in a subdirectory)
-      - name: Change to project directory
-        run: cd apps/web
-
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies from root (this will handle workspaces)
       - name: Install dependencies
-        run: 
-            npm install --prefix=apps/web
+        run: npm install
+
+      # Step 4: Build the web app
+      - name: Build web app
+        run: npm run build:web
 
       # Step 5: Deploy to Azure App Service
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'testbatu' # Replace with your Azure App Service name
+          app-name: 'testbatu'
           slot-name: 'production'
-          package: '.'
+          package: './apps/web'
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
           AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
