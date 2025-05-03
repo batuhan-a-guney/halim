@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: '22.x'
 
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack prepare npm@9.6.7 --activate
+
       - name: Fix missing or broken @repo packages
         run: |
           echo "Finding all @repo dependencies..."
@@ -90,55 +95,8 @@ jobs:
           
           echo "All packages processed. Directory structure:"
           ls -la packages/
-          
-          # Debug api package specifically
-          echo "Checking api package structure:"
-          ls -la packages/api/ || echo "No api package"
-          cat packages/api/package.json || echo "No api package.json"
-          cat packages/api/tsconfig.json || echo "No api tsconfig.json"
 
       - name: Create turbo.json if it doesn't exist
         run: |
           if [ ! -f "turbo.json" ]; then
-            echo "Creating turbo.json..."
-            cat > turbo.json << 'EOF'
-          {
-            "$schema": "https://turbo.build/schema.json",
-            "globalDependencies": ["**/.env.*local"],
-            "tasks": {
-              "build": {
-                "dependsOn": ["^build"],
-                "outputs": [".next/**", "!.next/cache/**", "dist/**"]
-              },
-              "dev": {
-                "cache": false,
-                "persistent": true
-              },
-              "lint": {
-                "dependsOn": ["^lint"]
-              },
-              "check-types": {
-                "dependsOn": ["^check-types"]
-              }
-            }
-          }
-          EOF
-          fi
-
-      - name: Install dependencies
-        run: npm install
-          
-      - name: Build web app
-        run: npm run build:web
-
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'testbatu'
-          slot-name: 'production'
-          package: './apps/web'
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZUREAPPSERVICE_PASSWORD }}
+            echo "
