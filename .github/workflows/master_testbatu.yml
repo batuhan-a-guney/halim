@@ -28,6 +28,7 @@ jobs:
       # Step 4: Install dependencies
       - name: Install dependencies
         run: 
+            npm config set registry 
             npm config set registry https://skimdb.npmjs.com/registry
             npm install --prefix=apps/web
 
