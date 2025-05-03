@@ -54,20 +54,22 @@ jobs:
               # Check if tsconfig.json exists, if not create one
               if [ ! -f "$pkg_dir/tsconfig.json" ]; then
                 echo "Creating tsconfig.json for $package"
-                echo '{
-                  "compilerOptions": {
-                    "target": "es2015",
-                    "module": "commonjs",
-                    "outDir": "./dist",
-                    "rootDir": "./src",
-                    "strict": false,
-                    "esModuleInterop": true,
-                    "skipLibCheck": true,
-                    "noEmit": true
-                  },
-                  "include": ["src/**/*"],
-                  "exclude": ["node_modules"]
-                }' > "$pkg_dir/tsconfig.json"
+                cat > "$pkg_dir/tsconfig.json" << 'EOL'
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+EOL
               fi
               
               # Ensure src directory exists
@@ -99,4 +101,45 @@ jobs:
       - name: Create turbo.json if it doesn't exist
         run: |
           if [ ! -f "turbo.json" ]; then
-            echo "
+            echo "Creating turbo.json..."
+            cat > turbo.json << 'EOL'
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    }
+  }
+}
+EOL
+          fi
+
+      - name: Install dependencies
+        run: npm install
+          
+      - name: Build web app
+        run: npm run build:web
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'testbatu'
+          slot-name: 'production'
+          package: './apps/web'
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZUREAPPSERVICE_PASSWORD }}
