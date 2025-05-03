@@ -21,10 +21,12 @@ jobs:
         with:
           node-version: '22.x'
 
-      # Step 3: Install dependencies from root (this will handle workspaces)
+      # Step 3: Install dependencies from root with proper workspace support
       - name: Install dependencies
-        run: npm install
-
+        run: |
+          npm config set workspaces-update false
+          npm install --legacy-peer-deps
+      
       # Step 4: Build the web app
       - name: Build web app
         run: npm run build:web
