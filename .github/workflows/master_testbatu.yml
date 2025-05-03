@@ -11,41 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
-      
-      # Step 3: Debug workspace information
-      - name: Debug workspace setup
+
+      - name: Install production dependencies only
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Listing root directory:"
-          ls -la
-          echo "Checking if package-lock.json exists:"
-          ls -la package-lock.json || echo "No package-lock.json found"
-          echo "NPM version:"
-          npm --version
-          echo "Package.json content:"
-          cat package.json
+          # Install only production dependencies
+          npm install --omit=dev
           
-      # Step 4: Install dependencies
-      - name: Install dependencies
-        run: |
-          # Ensure npm recognizes this as a workspace
-          npm install --workspaces --include-workspace-root
-          
-      # Step 5: Build the web app
       - name: Build web app
         run: npm run build:web
 
-      # Step 6: Deploy to Azure App Service
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
