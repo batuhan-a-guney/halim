@@ -19,34 +19,59 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Create missing workspace packages
+      - name: Find and create all missing @repo packages
         run: |
-          echo "Creating missing workspace packages..."
+          echo "Finding all @repo dependencies..."
           
-          # Create eslint-config
-          mkdir -p packages/eslint-config
-          echo '{"name": "@repo/eslint-config", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/eslint-config/package.json
-          echo 'module.exports = {};' > packages/eslint-config/index.js
+          # Find all @repo dependencies in all package.json files
+          REPO_PACKAGES=$(find . -name "package.json" -exec grep -h "@repo/" {} \; | grep -o "@repo/[^\"']*" | sort -u)
           
-          # Create typescript-config
-          mkdir -p packages/typescript-config  
-          echo '{"name": "@repo/typescript-config", "version": "0.0.0", "private": true, "main": "base.json"}' > packages/typescript-config/package.json
-          echo '{}' > packages/typescript-config/base.json
+          echo "Found the following @repo packages:"
+          echo "$REPO_PACKAGES"
           
-          # Create sanity (both sanity and fsanity in case it's a typo)
-          mkdir -p packages/sanity
-          echo '{"name": "@repo/sanity", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/sanity/package.json
-          echo 'module.exports = {};' > packages/sanity/index.js
+          # Create each missing package
+          for package in $REPO_PACKAGES; do
+            pkg_name=${package#@repo/}
+            pkg_dir="packages/$pkg_name"
+            
+            if [ ! -d "$pkg_dir" ]; then
+              echo "Creating missing package: $package"
+              mkdir -p "$pkg_dir"
+              echo "{\"name\": \"$package\", \"version\": \"0.0.0\", \"private\": true, \"main\": \"index.js\"}" > "$pkg_dir/package.json"
+              echo "module.exports = {};" > "$pkg_dir/index.js"
+            fi
+          done
           
-          mkdir -p packages/fsanity
-          echo '{"name": "@repo/fsanity", "version": "0.0.0", "private": true, "main": "index.js"}' > packages/fsanity/package.json
-          echo 'module.exports = {};' > packages/fsanity/index.js
-          
-          echo "Packages directory after creation:"
+          echo "All packages created. Directory structure:"
           ls -la packages/
-          
-          echo "All package.json files:"
-          find . -name "package.json" | xargs grep -l "repo" || true
+
+      - name: Create turbo.json if it doesn't exist
+        run: |
+          if [ ! -f "turbo.json" ]; then
+            echo "Creating turbo.json..."
+            cat > turbo.json << 'EOF'
+          {
+            "$schema": "https://turbo.build/schema.json",
+            "globalDependencies": ["**/.env.*local"],
+            "pipeline": {
+              "build": {
+                "dependsOn": ["^build"],
+                "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+              },
+              "dev": {
+                "cache": false,
+                "persistent": true
+              },
+              "lint": {
+                "dependsOn": ["^lint"]
+              },
+              "check-types": {
+                "dependsOn": ["^check-types"]
+              }
+            }
+          }
+          EOF
+          fi
 
       - name: Install dependencies
         run: npm install
