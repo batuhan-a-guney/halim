@@ -1,0 +1,27 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
+    "clean": "rm -rf node_modules dist",
+    "compile": "npx tsc",
+    "build": "npx tsc"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/sanity": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "latest"
+  },
+  "exports": {
+    "./client": "./src/client/client.ts",
+    "./types": "./src/types/index.ts",
+    "./queries": "./src/queries/index.ts",
+    "./services": "./src/services/index.ts"
+  },
+  "dependencies": {
+    "groq": "^3.82.0"
+  }
+}

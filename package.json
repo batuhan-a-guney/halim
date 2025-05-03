@@ -1,0 +1,35 @@
+{
+  "name": "eti-website",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=web",
+    "build:ui": "turbo run build --filter=@repo/ui",
+    "dev": "turbo run dev",
+    "dev:sanity": "turbo dev --filter=@repo/sanity",
+    "dev:ui": "turbo dev --filter=@repo/ui",
+    "dev:web": "turbo dev --filter=web",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "prepare": "husky",
+    "compile": "turbo compile",
+    "start:web": "cd apps/web && npm start",
+    "start:ui": "cd packages/ui && npm start",
+    "deploy:sanity": "cd packages/sanity && npm run deploy"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
+    "turbo": "^2.4.4",
+    "typescript": "5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@9.6.7",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
