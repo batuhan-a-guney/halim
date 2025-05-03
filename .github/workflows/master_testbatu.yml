@@ -55,21 +55,21 @@ jobs:
               if [ ! -f "$pkg_dir/tsconfig.json" ]; then
                 echo "Creating tsconfig.json for $package"
                 cat > "$pkg_dir/tsconfig.json" << 'EOL'
-{
-  "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "noEmit": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
-}
-EOL
+          {
+            "compilerOptions": {
+              "target": "es2015",
+              "module": "commonjs",
+              "outDir": "./dist",
+              "rootDir": "./src",
+              "strict": false,
+              "esModuleInterop": true,
+              "skipLibCheck": true,
+              "noEmit": true
+            },
+            "include": ["src/**/*"],
+            "exclude": ["node_modules"]
+          }
+          EOL
               fi
               
               # Ensure src directory exists
@@ -103,27 +103,27 @@ EOL
           if [ ! -f "turbo.json" ]; then
             echo "Creating turbo.json..."
             cat > turbo.json << 'EOL'
-{
-  "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    }
-  }
-}
-EOL
+          {
+            "$schema": "https://turbo.build/schema.json",
+            "globalDependencies": ["**/.env.*local"],
+            "tasks": {
+              "build": {
+                "dependsOn": ["^build"],
+                "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+              },
+              "dev": {
+                "cache": false,
+                "persistent": true
+              },
+              "lint": {
+                "dependsOn": ["^lint"]
+              },
+              "check-types": {
+                "dependsOn": ["^check-types"]
+              }
+            }
+          }
+          EOL
           fi
 
       - name: Install dependencies
