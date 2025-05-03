@@ -20,18 +20,32 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
-
-      # Step 3: Install dependencies from root with proper workspace support
+      
+      # Step 3: Debug workspace information
+      - name: Debug workspace setup
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing root directory:"
+          ls -la
+          echo "Checking if package-lock.json exists:"
+          ls -la package-lock.json || echo "No package-lock.json found"
+          echo "NPM version:"
+          npm --version
+          echo "Package.json content:"
+          cat package.json
+          
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: |
-          npm config set workspaces-update false
-          npm install --legacy-peer-deps
-      
-      # Step 4: Build the web app
+          # Ensure npm recognizes this as a workspace
+          npm install --workspaces --include-workspace-root
+          
+      # Step 5: Build the web app
       - name: Build web app
         run: npm run build:web
 
-      # Step 5: Deploy to Azure App Service
+      # Step 6: Deploy to Azure App Service
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
